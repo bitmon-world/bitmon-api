@@ -78,7 +78,7 @@ func (model *BitmonDBModel) GetElementsList() (data []types.Elements, err error)
 	}()
 	for cur.Next(ctx) {
 		var element types.Elements
-		err = cur.Decode(&data)
+		err = cur.Decode(&element)
 		if err != nil {
 			return
 		}

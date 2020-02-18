@@ -48,6 +48,18 @@ func (ctrl *BitmonController) GetElementsList(params types.ReqParams) (interface
 	return data, nil
 }
 
+func (ctrl *BitmonController) GetElement(params types.ReqParams) (interface{}, error) {
+	data, err := ctrl.dbModel.GetElement(params.ID)
+	if err != nil {
+		return nil, errors.New("unable to item")
+	}
+	return data, nil
+}
+
+func (ctrl *BitmonController) GetImage(params types.ReqParams) (interface{}, error) {
+	return types.Success{Success: true}, nil
+}
+
 func (ctrl *BitmonController) AddElement(params types.ReqParams) (interface{}, error) {
 	var element types.Elements
 	err := json.Unmarshal(params.Body, &element)
