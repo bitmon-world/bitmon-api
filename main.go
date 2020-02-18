@@ -36,26 +36,26 @@ func GetApp() *gin.Engine {
 
 func ApplyRoutes(r *gin.Engine) {
 	r.Static("/img", "./img")
-	api := r.Group("/", gin.BasicAuth(gin.Accounts{
+	ctrl := controllers.NewBitmonController(os.Getenv("MONGODB_URI"), os.Getenv("MONGODB_NAME"))
+	api := r.Group("/")
+	{
+		store := persistence.NewInMemoryStore(time.Hour)
+		api.GET("/mon/single/:id", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetMonInfo) }))
+		api.GET("/mon/list", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetMonList) }))
+		api.GET("/elements/list", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetElementsList) }))
+		api.GET("/elements/single/:id", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetElement) }))
+	}
+
+	apiAuth := r.Group("/", gin.BasicAuth(gin.Accounts{
 		os.Getenv("AUTH_USERNAME"): os.Getenv("AUTH_PASSWORD"),
 	}))
 
 	{
-		store := persistence.NewInMemoryStore(time.Hour)
-		ctrl := controllers.NewBitmonController(os.Getenv("MONGODB_URI"), os.Getenv("MONGODB_NAME"))
+		apiAuth.POST("/mon/add", func(c *gin.Context) { callWrapper(c, ctrl.GetMonList) })
+		apiAuth.POST("/elements/add", func(c *gin.Context) { callWrapper(c, ctrl.AddElement) })
+		apiAuth.POST("/adventure", func(c *gin.Context) { callWrapper(c, ctrl.CalcAdventure) })
 
-		// Monsters Information
-		api.GET("/mon/single/:id", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetMonInfo) }))
-		api.GET("/mon/list", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetMonList) }))
-		api.POST("/mon/add", func(c *gin.Context) { callWrapper(c, ctrl.GetMonList) })
 
-		// Elements Information
-		api.GET("/elements/list", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetElementsList) }))
-		api.GET("/elements/single/:id", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetElement) }))
-		api.POST("/elements/add", func(c *gin.Context) { callWrapper(c, ctrl.AddElement) })
-
-		// Adventure algorithm
-		api.POST("/adventure", func(c *gin.Context) { callWrapper(c, ctrl.CalcAdventure) })
 	}
 	r.NoRoute(func(c *gin.Context) {
 		c.String(http.StatusNotFound, "Not Found")
