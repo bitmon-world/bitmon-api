@@ -1,6 +1,7 @@
 package types
 
 type GeneralMon struct {
+	ID               string     `bson:"id" json:"id"`
 	Name             string     `bson:"name" json:"name"`
 	SpritesUrl       string     `bson:"sprites" json:"sprites"`
 	StatsBaseTable   StatsMap   `bson:"stats_base_table" json:"stats_base_table"`

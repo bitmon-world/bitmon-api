@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/bitmon-world/bitmon-api/models"
 	"github.com/bitmon-world/bitmon-api/types"
@@ -37,6 +38,27 @@ func (ctrl *BitmonController) AddMon(params types.ReqParams) (interface{}, error
 		return nil, errors.New("general monster information not found")
 	}
 	return data, nil
+}
+
+func (ctrl *BitmonController) GetElementsList(params types.ReqParams) (interface{}, error) {
+	data, err := ctrl.dbModel.GetElementsList()
+	if err != nil {
+		return nil, errors.New("unable to get items list")
+	}
+	return data, nil
+}
+
+func (ctrl *BitmonController) AddElement(params types.ReqParams) (interface{}, error) {
+	var element types.Elements
+	err := json.Unmarshal(params.Body, &element)
+	if err != nil {
+		return nil, err
+	}
+	err = ctrl.dbModel.AddElement(element)
+	if err != nil {
+		return nil, errors.New("unable to store element information")
+	}
+	return types.Success{Success: true}, nil
 }
 
 func (ctrl *BitmonController) CalcAdventure(params types.ReqParams) (interface{}, error) {

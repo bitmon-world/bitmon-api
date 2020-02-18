@@ -8,6 +8,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/joho/godotenv/autoload"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -44,7 +45,11 @@ func ApplyRoutes(r *gin.Engine) {
 		// General Information
 		api.GET("/mon/single/:id", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetMonInfo) }))
 		api.GET("/mon/list", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetMonList) }))
-		api.POST("/mon/add", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetMonList) }))
+		api.POST("/mon/add", func(c *gin.Context) { callWrapper(c, ctrl.GetMonList) })
+		api.GET("/elements/list", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetElementsList) }))
+		api.GET("/elements/single/:id", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetMonList) }))
+		api.GET("/elements/image/:id", cache.CachePage(store, time.Minute*10, func(c *gin.Context) { callWrapper(c, ctrl.GetMonList) }))
+		api.POST("/elements/add", func(c *gin.Context) { callWrapper(c, ctrl.AddElement) })
 
 		// Adventure algorithm
 		api.POST("/adventure", func(c *gin.Context) { callWrapper(c, ctrl.CalcAdventure) })
@@ -56,11 +61,14 @@ func ApplyRoutes(r *gin.Engine) {
 
 func callWrapper(c *gin.Context, method func(params types.ReqParams) (interface{}, error)) {
 	id := c.Param("id")
+	body, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
 	params := types.ReqParams{
-		ID:            id,
-		AdventureType: "",
-		TicketID:      "",
-		TicketProof:   "",
+		ID:   id,
+		Body: body,
 	}
 	res, err := method(params)
 	if err != nil {
