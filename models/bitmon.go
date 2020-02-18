@@ -101,7 +101,7 @@ func (model *BitmonDBModel) AddElement(data types.Elements) error {
 	defer cancel()
 	col := model.db.Collection("elements")
 	upsert := true
-	_, err := col.UpdateOne(ctx, bson.M{"_id": data.ID}, bson.M{"$set": data}, &options.UpdateOptions{ Upsert: &upsert})
+	_, err := col.UpdateOne(ctx, bson.M{"_id": data.ID}, bson.M{"$set": data}, &options.UpdateOptions{Upsert: &upsert})
 	return err
 }
 
