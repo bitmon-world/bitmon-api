@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/bitmon-world/bitmon-api/models"
+	"github.com/bitmon-world/bitmon-api/types"
 )
 
 type TestRes struct {
@@ -12,4 +13,13 @@ type TestRes struct {
 type BitmonController struct {
 	Elements models.ElementsModel
 	Bitmons  models.BitmonModel
+}
+
+
+func (c *BitmonController) GetMon(params types.ReqParams) (interface{}, error) {
+	return nil, nil
+}
+
+func (c *BitmonController) GetElement(params types.ReqParams) (interface{}, error) {
+	return c.Elements.Get(params.ID)
 }

@@ -1,6 +1,9 @@
 package models
 
-import "sync"
+import (
+	"errors"
+	"sync"
+)
 
 var baseURL = "https://api.bitmon.io/img/elements/"
 
@@ -17,6 +20,16 @@ type Element struct {
 type ElementsModel struct {
 	Elements map[string]Element
 	lock     sync.RWMutex
+}
+
+func (m *ElementsModel) Get(id string) (Element, error) {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
+	e, ok := m.Elements[id]
+	if !ok {
+		return Element{}, errors.New("element doesn't exist")
+	}
+	return e, nil
 }
 
 var Elements = ElementsModel{

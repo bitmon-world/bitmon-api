@@ -40,7 +40,7 @@ func ApplyRoutes(r *gin.Engine) {
 	}
 	api := r.Group("/")
 	{
-		api.GET("/mon/single/:id", func(c *gin.Context) { callWrapper(c, ctrl.GetMonInfo) })
+		api.GET("/mon/single/:id", func(c *gin.Context) { callWrapper(c, ctrl.GetMon) })
 		api.GET("/elements/single/:id", func(c *gin.Context) { callWrapper(c, ctrl.GetElement) })
 	}
 	r.NoRoute(func(c *gin.Context) {
