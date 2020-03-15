@@ -16,7 +16,7 @@ type BitmonController struct {
 }
 
 func (c *BitmonController) GetMon(params types.ReqParams) (interface{}, error) {
-	return nil, nil
+	return c.Bitmons.Get(params.ID)
 }
 
 func (c *BitmonController) GetElement(params types.ReqParams) (interface{}, error) {
