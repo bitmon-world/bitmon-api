@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/bitmon-world/bitmon-api/controllers"
+	"github.com/bitmon-world/bitmon-api/models"
 	"github.com/bitmon-world/bitmon-api/types"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -33,24 +34,14 @@ func GetApp() *gin.Engine {
 
 func ApplyRoutes(r *gin.Engine) {
 	r.Static("/img", "./img")
-	ctrl := controllers.NewBitmonController(os.Getenv("MONGODB_URI"), os.Getenv("MONGODB_NAME"))
+	ctrl := controllers.BitmonController{
+		Elements: models.Elements,
+		Bitmons:  models.Bitmons,
+	}
 	api := r.Group("/")
 	{
 		api.GET("/mon/single/:id", func(c *gin.Context) { callWrapper(c, ctrl.GetMonInfo) })
-		api.GET("/mon/list", func(c *gin.Context) { callWrapper(c, ctrl.GetMonList) })
-		api.GET("/elements/list", func(c *gin.Context) { callWrapper(c, ctrl.GetElementsList) })
 		api.GET("/elements/single/:id", func(c *gin.Context) { callWrapper(c, ctrl.GetElement) })
-	}
-
-	apiAuth := r.Group("/", gin.BasicAuth(gin.Accounts{
-		os.Getenv("AUTH_USERNAME"): os.Getenv("AUTH_PASSWORD"),
-	}))
-
-	{
-		apiAuth.POST("/mon/add", func(c *gin.Context) { callWrapper(c, ctrl.GetMonList) })
-		apiAuth.POST("/elements/add", func(c *gin.Context) { callWrapper(c, ctrl.AddElement) })
-		apiAuth.POST("/adventure", func(c *gin.Context) { callWrapper(c, ctrl.CalcAdventure) })
-
 	}
 	r.NoRoute(func(c *gin.Context) {
 		c.String(http.StatusNotFound, "Not Found")
