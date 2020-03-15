@@ -15,7 +15,6 @@ type BitmonController struct {
 	Bitmons  models.BitmonModel
 }
 
-
 func (c *BitmonController) GetMon(params types.ReqParams) (interface{}, error) {
 	return nil, nil
 }
